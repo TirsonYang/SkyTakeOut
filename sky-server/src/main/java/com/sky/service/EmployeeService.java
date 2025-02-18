@@ -18,4 +18,11 @@ public interface EmployeeService {
     void insert(EmployeeDTO employeeDTO);
 
     PageResult pageQuery(EmployeePageQueryDTO employeePageQueryDTO);
+
+    /**
+     * 启用、禁用员工
+     * @param status
+     * @param id
+     */
+    void setStatus(Integer status, Long id);
 }

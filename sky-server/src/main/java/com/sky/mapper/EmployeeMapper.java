@@ -23,4 +23,16 @@ public interface EmployeeMapper {
 
 
     Page<Employee> pageQuery(EmployeePageQueryDTO employeePageQueryDTO);
+
+    void OnorOff(Employee employee);
+
+    /**
+     * 将其设为动态sql
+     */
+//    @Update("update sky_take_out.employee set status=0 where id=#{id}")
+//    void offStatus(Long id);
+//
+//    @Update("update sky_take_out.employee set status=1 where id=#{id}")
+//    void onStatus(Long id);
+
 }
