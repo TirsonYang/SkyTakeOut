@@ -1,10 +1,13 @@
 package com.sky.controller.admin;
 
 import com.sky.constant.JwtClaimsConstant;
+import com.sky.constant.MessageConstant;
 import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
 import com.sky.dto.EmployeePageQueryDTO;
+import com.sky.dto.PasswordEditDTO;
 import com.sky.entity.Employee;
+import com.sky.exception.PasswordErrorException;
 import com.sky.properties.JwtProperties;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
@@ -39,6 +42,7 @@ public class EmployeeController {
      * @return
      */
     @PostMapping("/login")
+    @ApiOperation("员工登录")
     public Result<EmployeeLoginVO> login(@RequestBody EmployeeLoginDTO employeeLoginDTO) {
         log.info("员工登录：{}", employeeLoginDTO);
 
@@ -68,6 +72,7 @@ public class EmployeeController {
      * @return
      */
     @PostMapping("/logout")
+    @ApiOperation("退出登录")
     public Result<String> logout() {
         return Result.success();
     }
@@ -114,4 +119,16 @@ public class EmployeeController {
         employeeService.updateEmployee(employeeDTO);
         return Result.success();
     }
+    @RequestMapping(value = "/editPassword",method = RequestMethod.PUT)
+    public Result updatePassword(@RequestBody PasswordEditDTO passwordEditDTO){
+        log.info("修改id为{}的员工密码",passwordEditDTO.getEmpId());
+        boolean flag=employeeService.updatePassword(passwordEditDTO);
+        if (flag){
+            return Result.success();
+        }else {
+            log.info("旧密码错误，"+MessageConstant.PASSWORD_EDIT_FAILED);
+            return Result.error("旧密码错误，"+MessageConstant.PASSWORD_EDIT_FAILED);
+        }
+    }
+
 }
