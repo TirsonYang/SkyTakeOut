@@ -4,6 +4,7 @@ import com.github.pagehelper.Page;
 import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Dish;
 import com.sky.entity.DishFlavor;
+import com.sky.entity.SetmealDish;
 import com.sky.vo.DishVO;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
@@ -26,6 +27,11 @@ public interface DishMapper {
     void insert(Dish dish);
 
 
+    /**
+     * 菜品分页查询
+     * @param dishPageQueryDTO
+     * @return
+     */
     Page<DishVO> pageQuery(DishPageQueryDTO dishPageQueryDTO);
 
     /**
@@ -48,6 +54,24 @@ public interface DishMapper {
     @Select("select * from sky_take_out.dish_flavor where dish_id=#{dishid}")
     List<DishFlavor> getByDishId(Long dishid);
 
+    
+
+    DishVO getByIdWithFlavor(Long id);
 
     void update(Dish dish);
+
+    /**
+     * 动态条件查询菜品
+     * @param dish
+     * @return
+     */
+    List<Dish> list(Dish dish);
+
+    /**
+     * 根据套餐id查询菜品
+     * @param id
+     * @return
+     */
+    @Select("select a.* from sky_take_out.dish a left join sky_take_out.setmeal_dish b on a.id = b.dish_id where b.setmeal_id = #{setmealId}")
+    List<Dish> getBySetmealId(Long id);
 }
