@@ -20,6 +20,7 @@ import com.sky.vo.SetmealVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -43,7 +44,24 @@ public class SetmealServiceImpl implements SetmealService {
      */
     @Override
     public SetmealVO getById(Long id) {
-        return setmealMapper.getById(id);
+
+        List<SetmealDish> setmealDishes=setmealDishMapper.getByDishId(id);
+
+        System.out.println();
+        System.out.println();
+        System.out.println();
+        System.out.println();
+        System.out.println();
+        System.out.println(setmealDishes);
+        System.out.println();
+        System.out.println();
+        System.out.println();
+        System.out.println();
+        System.out.println();
+        SetmealVO setmealVO = setmealMapper.getById(id);
+        setmealVO.setSetmealDishes(setmealDishes);
+
+        return setmealVO;
     }
 
     /**
@@ -77,13 +95,12 @@ public class SetmealServiceImpl implements SetmealService {
         setmealMapper.insert(setmeal);
 
         //获取生成的套餐id
-        Long setmealId = setmeal.getId();
-
+        Long id= setmeal.getId();
+        //修改套餐中的菜品id
         List<SetmealDish> setmealDishes = setmealDTO.getSetmealDishes();
-        setmealDishes.forEach(setmealDish -> {
-            setmealDish.setSetmealId(setmealId);
-        });
-
+        for (int i = 0; i < setmealDishes.size(); i++) {
+            setmealDishes.get(i).setSetmealId(id);
+        }
         //保存套餐和菜品的关联关系
         setmealDishMapper.insertBatch(setmealDishes);
     }
@@ -99,5 +116,45 @@ public class SetmealServiceImpl implements SetmealService {
             }
         }
         setmealMapper.updateStatus(status,id);
+    }
+
+    /**
+     * 批量删除套餐
+     * @param ids
+     */
+    @Transactional
+    @Override
+    public void deleteBatch(List<Long> ids) {
+        for(Long id:ids){
+            Setmeal setmeal=setmealMapper.queryWithDishes(id);
+            if (setmeal.getStatus()==StatusConstant.ENABLE){
+                throw new SetmealEnableFailedException(MessageConstant.SETMEAL_ON_SALE);
+            }
+            setmealMapper.deleteBatchById(id);
+            setmealDishMapper.deleteBatchById(id);
+        }
+    }
+
+    @Override
+    public void update(SetmealDTO setmealDTO) {
+        //按照setmealDTO参数中的内容修改套餐表中内容
+        Setmeal setmeal=new Setmeal();
+        BeanUtils.copyProperties(setmealDTO,setmeal);
+        setmeal.setUpdateTime(LocalDateTime.now());
+        setmeal.setUpdateUser(BaseContext.getCurrentId());
+        setmealMapper.update(setmeal);
+
+        List<SetmealDish> setmealDishes=setmealDTO.getSetmealDishes();
+
+        Long id=setmealDTO.getId();
+
+        setmealMapper.deleteBatchById(id);
+
+        for (int i = 0; i < setmealDishes.size(); i++) {
+            setmealDishes.get(i).setSetmealId(id);
+        }
+
+        setmealDishMapper.insertBatch(setmealDishes);
+
     }
 }
