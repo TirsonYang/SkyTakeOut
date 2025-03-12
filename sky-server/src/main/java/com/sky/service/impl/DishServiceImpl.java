@@ -147,8 +147,28 @@ public class DishServiceImpl implements DishService {
 
     // TODO:查询菜品口味的接口没有完成
     @Override
+    /**
+     * 条件查询菜品和口味
+     * @param dish
+     * @return
+     */
     public List<DishVO> listWithFlavor(Dish dish) {
-        return new ArrayList<>();
+        List<Dish> dishList = dishMapper.list(dish);
+
+        List<DishVO> dishVOList = new ArrayList<>();
+
+        for (Dish d : dishList) {
+            DishVO dishVO = new DishVO();
+            BeanUtils.copyProperties(d,dishVO);
+
+            //根据菜品id查询对应的口味
+            List<DishFlavor> flavors = dishFlavorMapper.getByDishId(d.getId());
+
+            dishVO.setFlavors(flavors);
+            dishVOList.add(dishVO);
+        }
+
+        return dishVOList;
     }
 
     /**
