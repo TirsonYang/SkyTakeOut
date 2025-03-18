@@ -110,6 +110,7 @@ public class DishController {
         return Result.success();
     }
 
+
     /**
      * 根据分类id查询菜品
      * @param categoryId
@@ -122,6 +123,8 @@ public class DishController {
         return Result.success(list);
     }
 
+
+
     /**
      * 清理缓存数据
      * @param key
@@ -130,4 +133,6 @@ public class DishController {
         Set keys = redisTemplate.keys(key);
         redisTemplate.delete(keys);
     }
+
+
 }
