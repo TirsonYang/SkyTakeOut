@@ -1,11 +1,15 @@
 package com.sky.controller.user;
 
+import com.github.pagehelper.Page;
+import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.dto.OrdersPaymentDTO;
 import com.sky.dto.OrdersSubmitDTO;
+import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.OrderService;
 import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderSubmitVO;
+import com.sky.vo.OrderVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -49,4 +53,46 @@ public class OrderController {
         return Result.success(orderPaymentVO);
     }
 
+    /**
+     * 历史订单分页查询
+     * @param page,pageSize,status
+     * @return
+     */
+    @ApiOperation("查询历史订单")
+    @RequestMapping(value = "/historyOrders",method=RequestMethod.GET)
+    public Result<PageResult> historyOrdersPageQuery(int page, int pageSize, Integer status){
+        log.info("历史订单查询,{},{}",page,pageSize);
+        PageResult pageResult = orderService.pageQuery(page,pageSize,status);
+        return Result.success(pageResult);
+    }
+
+    @ApiOperation("订单详情")
+    @RequestMapping(value = "/orderDetail/{id}",method=RequestMethod.GET)
+    public Result<OrderVO> ordersDetails(@PathVariable Long id){
+        log.info("查询id为：{}的订单详情",id);
+        OrderVO orderVO = orderService.detailsQuery(id);
+        return Result.success(orderVO);
+    }
+
+
+    /**
+     * 取消订单
+     * @param id
+     * @return
+     */
+    @ApiOperation("取消订单")
+    @RequestMapping(value = "/cancel/{id}",method=RequestMethod.PUT)
+    public Result cancelOrders(@PathVariable Long id) throws Exception {
+        log.info("将要取消id为：{}的订单",id);
+        orderService.cancelOrders(id);
+        return Result.success();
+    }
+
+    @ApiOperation("再来一单")
+    @RequestMapping(value="/repetition/{id}",method = RequestMethod.POST)
+    public Result repetition(@PathVariable Long id){
+        log.info("将id为：{}的订单再来一单",id);
+        orderService.repetition(id);
+        return Result.success();
+    }
 }
