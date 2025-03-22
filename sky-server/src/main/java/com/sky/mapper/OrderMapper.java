@@ -6,6 +6,8 @@ import com.sky.entity.Orders;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.List;
+
 @Mapper
 public interface OrderMapper {
     void insert(Orders orders);
@@ -33,10 +35,17 @@ public interface OrderMapper {
 
 
     /**
-     * 根据菜订单id查询订单
+     * 根据订单id查询订单
      * @param id
      * @return
      */
     @Select("select * from sky_take_out.orders where id=#{id}")
     Orders getById(Long id);
+
+    /**
+     * 管理端统计待派送的订单数量
+     * @return
+     */
+    @Select("select count(id) from sky_take_out.orders where status = #{status}")
+    Integer countStatus(Integer status);
 }
