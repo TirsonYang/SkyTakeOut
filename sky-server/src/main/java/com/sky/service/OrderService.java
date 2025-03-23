@@ -87,4 +87,6 @@ public interface OrderService {
     void complete(Long id);
 
     void adminCancelOrders(OrdersCancelDTO ordersCancelDTO) throws Exception;
+
+    void reminder(Long id);
 }
