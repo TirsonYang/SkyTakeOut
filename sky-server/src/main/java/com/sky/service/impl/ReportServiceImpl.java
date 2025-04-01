@@ -2,9 +2,12 @@ package com.sky.service.impl;
 
 import com.sky.entity.Orders;
 import com.sky.mapper.OrderMapper;
+import com.sky.mapper.UserMapper;
 import com.sky.service.ReportService;
 import com.sky.vo.TurnoverReportVO;
+import com.sky.vo.UserReportVO;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -18,12 +21,10 @@ import java.util.Map;
 @Service
 public class ReportServiceImpl implements ReportService {
 
-
-    private final OrderMapper orderMapper;
-
-    public ReportServiceImpl(OrderMapper orderMapper) {
-        this.orderMapper = orderMapper;
-    }
+    @Autowired
+    private OrderMapper orderMapper;
+    @Autowired
+    private UserMapper userMapper;
 
     /**
      * 统计指定时间内营业额数据
@@ -75,5 +76,56 @@ public class ReportServiceImpl implements ReportService {
 
 
         return turnoverReportVO;
+    }
+
+    /**
+     * 统计指定时间内用户数据
+     * @param begin
+     * @param end
+     * @return
+     */
+    @Override
+    public UserReportVO getUserStatics(LocalDate begin, LocalDate end) {
+        List<LocalDate> dateList=new ArrayList<>();
+        dateList.add(begin);
+        while(!begin.equals(end)){
+            begin=begin.plusDays(1);
+            dateList.add(begin);
+        }
+
+        String dateListStr = StringUtils.join(dateList, ",");
+
+        List<Integer> newUserList=new ArrayList<>();      //新增用户数
+        List<Integer> totalUserList=new ArrayList<>();    //总用户数
+
+        for (LocalDate date : dateList) {
+            LocalDateTime beginTime = LocalDateTime.of(date, LocalTime.MIN);
+            LocalDateTime endTime = LocalDateTime.of(date, LocalTime.MAX);
+
+            Map map=new HashMap<>();
+            map.put("end",endTime);
+
+            //总用户数量
+            Integer total = userMapper.countByMap(map);
+
+            map.put("begin",beginTime);
+
+            Integer newUser = userMapper.countByMap(map);
+
+            totalUserList.add(total);
+            newUserList.add(newUser);
+
+        }
+
+        String totalUserListStr = StringUtils.join(totalUserList, ",");
+        String newUserListStr = StringUtils.join(newUserList, ",");
+
+        UserReportVO userReportVO=new UserReportVO();
+
+        userReportVO.setDateList(dateListStr);
+        userReportVO.setNewUserList(newUserListStr);
+        userReportVO.setTotalUserList(totalUserListStr);
+
+        return userReportVO;
     }
 }
